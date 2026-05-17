@@ -1,58 +1,63 @@
 import 'package:carpinteria_application/data/dummy_data.dart';
 import 'package:carpinteria_application/screens/category_products_screen.dart';
+import 'package:carpinteria_application/services/category_service.dart';
 import 'package:flutter/material.dart';
 
 class CategoriesScreen extends StatefulWidget {
-  const CategoriesScreen ({super.key});
+  const CategoriesScreen({super.key});
 
   @override
-  State<CategoriesScreen> createState() => _CategoriesScreenState(); 
+  State<CategoriesScreen> createState() => _CategoriesScreenState();
 }
 
-class _CategoriesScreenState extends State<CategoriesScreen>{
+class _CategoriesScreenState extends State<CategoriesScreen> {
+  final categoryService = CategoryService();
+  List<String> categories = [];
 
-  List<Map<String, dynamic>> 
-    categories = [
-      {'name': 'Juegos de Sala',
-        'icon': Icons.weekend,
-      },
+  @override
+  void initState() {
+    super.initState();
+    loadCategories();
+  }
 
-      {'name': 'Juegos de Comedor',
-        'icon': Icons.table_restaurant,
-      },
+  void loadCategories() {
+    final loadedCategories = categoryService.loadCategories();
 
-      {'name': 'Juegos de Alcoba',
-        'icon': Icons.bed,
-      },
-
-      {'name': 'Puertas',
-        'icon': Icons.door_front_door,
-      },
-
-      {'name': 'Ventanas',
-        'icon': Icons.window,
-      },
-    ];
+    setState(() {
+      if (loadedCategories.isEmpty) {
+        categories = [
+          'Juegos de Sala',
+          'Juegos de Comedor',
+          'Juegos de Alcoba',
+          'Puertas',
+          'Ventanas',
+        ];
+        categoryService.saveCategories(categories);  
+      } else {
+        categories = loadedCategories;
+      }
+    });
+  }
 
   void addCategory(String name){
     setState(() {
-      categories.add({
-        'name': name,
-        'icon': Icons.category,
-      });
+      categories.add(name);
     });
+    categoryService.saveCategories(categories);
+  }
+
+  void editCategory(int index, String newName){
+    setState(() {
+      categories[index] = newName;
+    });
+    categoryService.saveCategories(categories);
   }
 
   void deleteCategory(int index){
     setState(() {
       categories.removeAt(index);
     });
-  }
-
-  void editCategory(int index, String newName){
-    setState(() {
-      categories[index]['name'] = newName;
-    });
+    categoryService.saveCategories(categories);
   }
 
   @override
@@ -60,15 +65,12 @@ class _CategoriesScreenState extends State<CategoriesScreen>{
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFFBCAAA4),
-        child: const Icon(
-          Icons.add,
-          color: Color(0xFF4E342E),
-        ),
+        child: const Icon(Icons.add, color: Color(0xFF4E342E)),
         onPressed: () {
           final controller = TextEditingController();
           showDialog(
             context: context,
-            builder: (_){
+            builder: (_) {
               return AlertDialog(
                 title: const Text('Nueva categoría'),
                 content: TextField(
@@ -79,19 +81,19 @@ class _CategoriesScreenState extends State<CategoriesScreen>{
                 ),
                 actions: [
                   TextButton(
-                    onPressed: (){
+                    onPressed: () {
                       Navigator.pop(context);
                     },
                     child: const Text('Cancelar'),
                   ),
                   ElevatedButton(
-                    onPressed: (){
-                      if(controller.text.trim().isEmpty){
+                    onPressed: () {
+                      if (controller.text.trim().isEmpty) {
                         return;
                       }
                       addCategory(controller.text.trim());
                       Navigator.pop(context);
-                    }, 
+                    },
                     child: const Text('Guardar'),
                   ),
                 ],
@@ -101,9 +103,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>{
         },
       ),
       backgroundColor: const Color(0xFFF5F1EC),
-      appBar: AppBar(
-        title: const Text('Categorias'),
-      ),
+      appBar: AppBar(title: const Text('Categorias')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: GridView.builder(
@@ -114,13 +114,13 @@ class _CategoriesScreenState extends State<CategoriesScreen>{
             mainAxisSpacing: 16,
             childAspectRatio: 0.90,
           ),
-          itemBuilder: (context, index){
+          itemBuilder: (context, index) {
             final category = categories[index];
             return GestureDetector(
-              onLongPress: (){
+              onLongPress: () {
                 showModalBottomSheet(
                   context: context,
-                  builder: (_){
+                  builder: (_) {
                     return Container(
                       padding: const EdgeInsets.all(20),
                       child: Column(
@@ -129,28 +129,26 @@ class _CategoriesScreenState extends State<CategoriesScreen>{
                           ListTile(
                             leading: const Icon(Icons.edit),
                             title: const Text('Editar categoría'),
-                            onTap: (){
+                            onTap: () {
                               Navigator.pop(context);
                               final controller = TextEditingController(
-                                text: category['name'],
+                                text: category[index],
                               );
                               showDialog(
                                 context: context,
-                                builder: (_){
+                                builder: (_) {
                                   return AlertDialog(
                                     title: const Text('Editar categoría'),
-                                    content: TextField(
-                                      controller: controller,
-                                    ),
+                                    content: TextField(controller: controller),
                                     actions: [
                                       TextButton(
-                                        onPressed: (){
+                                        onPressed: () {
                                           Navigator.pop(context);
-                                        }, 
+                                        },
                                         child: const Text('Cancelar'),
                                       ),
                                       ElevatedButton(
-                                        onPressed: (){
+                                        onPressed: () {
                                           editCategory(index, controller.text);
                                           Navigator.pop(context);
                                         },
@@ -165,20 +163,22 @@ class _CategoriesScreenState extends State<CategoriesScreen>{
                           ListTile(
                             leading: const Icon(
                               Icons.delete,
-                              color: Colors.red,                             
+                              color: Colors.red,
                             ),
                             title: const Text('Eliminar Categoría'),
-                            onTap: (){
-                              final categoryName = category['name'];
-                              final hasProducts = products.any((product){
+                            onTap: () {
+                              final categoryName = category[index];
+                              final hasProducts = products.any((product) {
                                 return product.category == categoryName;
                               });
                               //=====SI TIENE PRODUCTOS======
-                              if (hasProducts){
+                              if (hasProducts) {
                                 Navigator.pop(context);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
-                                    content: Text('No puedes eliminar una categoría con productos asociados'),
+                                    content: Text(
+                                      'No puedes eliminar una categoría con productos asociados',
+                                    ),
                                   ),
                                 );
                                 return;
@@ -186,7 +186,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>{
                               //=======CONFIRMACION========
                               showDialog(
                                 context: context,
-                                builder: (_){
+                                builder: (_) {
                                   return AlertDialog(
                                     title: const Text('Eliminar categoría'),
                                     content: Text(
@@ -194,7 +194,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>{
                                     ),
                                     actions: [
                                       TextButton(
-                                        onPressed: (){
+                                        onPressed: () {
                                           Navigator.pop(context);
                                         },
                                         child: const Text('Cancelar'),
@@ -203,7 +203,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>{
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.red,
                                         ),
-                                        onPressed: (){
+                                        onPressed: () {
                                           deleteCategory(index);
                                           Navigator.pop(context);
                                           Navigator.pop(context);
@@ -211,9 +211,9 @@ class _CategoriesScreenState extends State<CategoriesScreen>{
                                         child: const Text('Eliminar'),
                                       ),
                                     ],
-                                  );                                  
+                                  );
                                 },
-                              );  
+                              );
                             },
                           ),
                         ],
@@ -222,23 +222,19 @@ class _CategoriesScreenState extends State<CategoriesScreen>{
                   },
                 );
               },
-              onTap: (){
+              onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => CategoryProductsScreen(
-                      category: category['name'],
-                    ),
+                    builder: (_) =>
+                        CategoryProductsScreen(category: category[index]),
                   ),
                 );
               },
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [
-                      const Color(0xFFA1887F),
-                      const Color(0xFFD7CCC8),
-                    ],
+                    colors: [const Color(0xFFA1887F), const Color(0xFFD7CCC8)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -255,15 +251,16 @@ class _CategoriesScreenState extends State<CategoriesScreen>{
                   color: Colors.transparent,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(20),
-                    onTap: (){
+                    onTap: () {
                       Navigator.push(
-                        context, MaterialPageRoute(
+                        context,
+                        MaterialPageRoute(
                           builder: (_) => CategoryProductsScreen(
-                            category: categories[index]['name'],
+                            category: categories[index],
                           ),
                         ),
                       );
-                    },                
+                    },
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -276,14 +273,14 @@ class _CategoriesScreenState extends State<CategoriesScreen>{
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
-                              categories[index]['icon'],
+                              Icons.category,
                               size: 42,
                               color: const Color(0xFF5D4037),
                             ),
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            categories[index]['name'],
+                            categories[index],
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 18,
@@ -296,11 +293,11 @@ class _CategoriesScreenState extends State<CategoriesScreen>{
                     ),
                   ),
                 ),
-              )
+              ),
             );
-          },  
+          },
         ),
-      ),  
+      ),
     );
   }
 }

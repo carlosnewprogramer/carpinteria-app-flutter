@@ -27,6 +27,16 @@ class _ProductsScreenState extends State<ProductsScreen> {
     filteredProducts = productList;
   }
 
+  void searchProduct(String query){
+    setState(() {
+      filteredProducts = productList.where(
+        (product){
+          return product.name.toLowerCase()
+          .contains(query.toLowerCase());
+        }).toList();
+    });
+  }
+
   void updateProduct(Product updateProduct){
     final index = productList.indexWhere(
         (product) => product.id == updateProduct.id,
@@ -46,16 +56,6 @@ class _ProductsScreenState extends State<ProductsScreen> {
       filteredProducts = productList;
     });
     productService.saveProducts(productList);
-  }
-
-  void searchProduct(String query){
-    setState(() {
-      filteredProducts = productList.where(
-        (product){
-          return product.name.toLowerCase()
-          .contains(query.toLowerCase());
-        }).toList();
-    });
   }
 
   @override
@@ -140,7 +140,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                             product: product,
                             onAddProduct: (updatedProduct) {
                               updateProduct(updatedProduct);
-                            },
+                            }, selectedCategory: '',
                           ),
                         ),
                       );
@@ -168,7 +168,7 @@ class _ProductsScreenState extends State<ProductsScreen> {
                       filteredProducts = productList;
                     });
                     productService.saveProducts(productList);
-                  },
+                  }, selectedCategory: '',
                 ),
               ),
           );  

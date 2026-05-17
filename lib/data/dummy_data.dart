@@ -7,20 +7,20 @@ List<Product> products = [
 
   Product(
     id: '1',
-    name: 'Juego de Comedor Clásico',
+    name: 'Juego Comedor Europeo',
     price: 1550000,
     stock: 5,
     imageUrl: '',
-    category: 'Comedores',
+    category: 'Juegos de Comedor',
   ),
 
   Product(
     id: '2',
-    name: 'Silla para comedor moderna',
-    price: 250000,
+    name: 'Juego sala estilo Clásico',
+    price: 2580000,
     stock: 10,
     imageUrl: '',
-    category: 'Sillas',
+    category: 'Juegos de Sala',
   ),
 
   Product(
@@ -40,6 +40,16 @@ List<Product> products = [
     imageUrl: '',
     category: 'Juegos de Alcoba',
   ),
+
+  Product(
+    id: '5',
+    name: 'Venatana duplex',
+    price: 520000,
+    stock: 8,
+    imageUrl: '',
+    category: 'Ventanas',
+  ),
+  
 ];
 
 List<Employee> employees = [

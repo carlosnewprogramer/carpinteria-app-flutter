@@ -6,11 +6,14 @@ import 'package:image_picker/image_picker.dart';
 class AddProductScreen extends StatefulWidget {
   final Function(Product) onAddProduct;
   final Product? product;
+  final String selectedCategory;
 
   const AddProductScreen({
     super.key,
     required this.onAddProduct,
+    required this.selectedCategory,
     this.product,
+
   });
 
   @override
@@ -40,7 +43,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         nameController.text = widget.product!.name;
         priceController.text = widget.product!.price.toString();
         stockController.text = widget.product!.stock.toString();
-        selectedCategory = widget.product!.category;
+        selectedCategory = widget.product?.category ?? widget.selectedCategory;
       }
     }
 
@@ -51,7 +54,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         price: double.parse(priceController.text),
         stock: int.parse(stockController.text),
         imageUrl: selectedImage?.path ?? '',
-        category: selectedCategory,
+        category: widget.selectedCategory,
       );
       widget.onAddProduct(product);
       Navigator.pop(context);
@@ -149,26 +152,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 ),
               ),
               keyboardType: TextInputType.number
-            ),
-            DropdownButtonFormField(
-              initialValue: selectedCategory,
-              decoration: InputDecoration(
-                labelText: 'Categoría',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-              ),
-              items: categories.map((category){
-                return DropdownMenuItem(
-                  value: category,
-                  child: Text(category),
-                );
-              }).toList(),
-              onChanged: (value){
-                setState(() {
-                  selectedCategory = value!;
-                });
-              },
             ),
             SizedBox(
               width: double.infinity,

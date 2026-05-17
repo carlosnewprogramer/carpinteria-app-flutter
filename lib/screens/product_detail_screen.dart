@@ -103,7 +103,7 @@ class ProductDetailScreen extends StatelessWidget {
                                   product: product,
                                   onAddProduct: (updatedProduct){
                                     onEdit(updatedProduct);
-                                  },
+                                  }, selectedCategory: '',
                                 ),
                               ),
                             );

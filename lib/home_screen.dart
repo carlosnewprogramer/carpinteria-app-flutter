@@ -3,6 +3,7 @@ import 'package:carpinteria_application/screens/orders_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:carpinteria_application/screens/categories_screen.dart';
+import 'package:carpinteria_application/screens/clients_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -125,21 +126,28 @@ class HomeScreen extends StatelessWidget {
                     context,
                     'Productos',
                     Icons.chair,
-                    Colors.brown,
+                    const Color(0xFF6D4C41),
                     CategoriesScreen(),
                   ),
                   buildMenuCard(
                     context,
+                    'Clientes',
+                    Icons.people_alt_rounded,
+                    const Color(0xFF8D6E63),
+                    const ClientsScreen(),
+                  ),
+                  buildMenuCard(
+                    context,
                     'Pedidos',
-                    Icons.receipt,
-                    Colors.orange,
+                    Icons.receipt_long,
+                    const Color(0xFF8D6E63),
                     const OrdersScreen(),
                   ),
                   buildMenuCard(
                     context,
                     'Empleados',
-                    Icons.people,
-                    Colors.blueGrey,
+                    Icons.badge,
+                    const Color(0xFF6D4C41),
                     const PlaceholderScreen(title: "Empleados"),
                   ),
                 ],

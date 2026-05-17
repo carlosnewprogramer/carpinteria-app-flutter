@@ -1,36 +1,58 @@
 import 'package:carpinteria_application/models/product.dart';
 import 'package:hive/hive.dart';
+import 'package:carpinteria_application/data/dummy_data.dart';
 
 class ProductService {
-  final Box box = Hive.box('products');
+  final Box<Product> box = Hive.box<Product>('products');
 
-  //=========GUARDAR=========
-  void saveProducts(List<Product> products){
-    final productMaps = products.map((product){
-      return {
-        'id': product.id,
-        'name': product.name,
-        'price': product.price,
-        'stock': product.stock,
-        'imageUrl': product.imageUrl,
-        'category': product.category,
-      };
-    }).toList();
-    box.put('product_list', productMaps);
+  //=======INICIALIZAR PRODUCTOS=======
+  Future<void> initializeProducts() async {
+    if (box.isEmpty){
+      for (var product in products){
+        await box.put(
+          product.id,
+          product,
+        );
+      }
+    }
   }
+
   //=========LEER LISTA==========
-  List<Product> loadProducts(){
-    final data = box.get('product_list');
-    if (data == null) return [];
-    return List<Map>.from(data).map((item){
-      return Product(
-        id: item['id'],
-        name: item['name'],
-        price: item['price'],
-        stock: item['stock'],
-        imageUrl: item['imageUrl'],
-        category: item['category'],
-      );
-    }).toList();
+  List<Product> loadProducts() {
+    return box.values.toList();
   }
+
+  //=======AGREGAR PRODUCTOS=======
+  Future<void> addProduct(Product product) async {
+    await box.put(
+      product.id,
+      product,
+    );
+  }
+
+  //=========GUARDAR PRODUCTOS=========
+  Future<void> saveProducts(List<Product> products) async {
+    final box = Hive.box<Product>('products');
+    await box.clear();
+    for (var product in products){
+      await box.put(
+        product.id,
+        product
+      );
+    }
+  }
+
+  //========ACTUALIZAR PRODUCTO=======
+  Future<void> updateProduct(Product product) async {
+    await box.put(
+      product.id,
+      product,
+    );
+  }
+
+  //========ELIMINAR PRODUCTOS=======
+  Future<void> deleteProduct(String id) async {
+    await box.delete(id);
+  }
+
 }
